@@ -2,8 +2,6 @@ FROM node:24 AS base
 
 WORKDIR /usr/src/api
 
-USER node
-
 # Development stage
 
 FROM base AS development
@@ -25,8 +23,6 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 COPY . .
-
-USER node
 
 RUN npm run build
 

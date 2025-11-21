@@ -38,7 +38,6 @@ services:
     build:
       context: ./worker
       dockerfile: Dockerfile
-      target: ${BUILD_TARGET}
     depends_on:
       - rabbitmq
       - api
@@ -50,7 +49,6 @@ services:
     build: 
       context: ./collector
       dockerfile: Dockerfile
-      target: ${BUILD_TARGET}
     depends_on:
       - rabbitmq
     environment:
