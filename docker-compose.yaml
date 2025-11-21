@@ -1,0 +1,72 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "${MONGODB_PORT}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+
+  api:
+    build: 
+      context: ./backend/
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET}
+    ports:
+      - "${API_PORT}:3000"
+    depends_on:
+      - mongodb
+      - rabbitmq
+    environment:
+      MONGODB_URI: ${MONGODB_URI}
+      NODE_ENV: ${NODE_ENV}
+
+  go-worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET}
+    depends_on:
+      - rabbitmq
+      - api
+    environment:
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      API_URL: ${API_URL}
+
+  python-collector:
+    build: 
+      context: ./collector
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET}
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: ${BUILD_TARGET}
+    ports:
+      - "${APP_PORT}:5173"
+    depends_on:
+      - api
+
+volumes:
+  rabbitmq_data:
+  mongo_data:
