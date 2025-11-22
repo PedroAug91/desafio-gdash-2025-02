@@ -2,12 +2,13 @@ import pika
 import json
 
 class MessageBroker:
-    def __init__(self, credentials, connection_config) -> None:
-        self.credentials = credentials
-        self.config = connection_config
+    def __init__(self, params: pika.URLParameters) -> None:
+        self.params = params
+        self.start_connection()
+        self.define_queue("weather_data")
 
     def start_connection(self):
-        self.connection = pika.BlockingConnection(self.credentials)
+        self.connection = pika.BlockingConnection(self.params)
 
         if (not self.connection):
             return False
@@ -18,6 +19,7 @@ class MessageBroker:
         self.queue = queue_name
 
     def send_data(self, data):
+
         self.channel.queue_declare(self.queue)
         self.channel.basic_publish(
             exchange="",
