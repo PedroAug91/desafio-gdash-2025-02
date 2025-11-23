@@ -2,6 +2,7 @@ import pika
 import schedule
 from time import sleep
 
+from Collector import Collector
 from MessageBroker import MessageBroker
 from WeatherAPI import WeatherAPI
 import env
@@ -14,16 +15,17 @@ def main():
         "hourly": ["temperature_2m", "relative_humidity_2m", "wind_speed_10m", "weather_code"],
         "current": ["temperature_2m", "relative_humidity_2m", "weather_code", "wind_speed_10m"],
     }
+    weather_api = WeatherAPI(url, params)
 
     pika_url = pika.URLParameters(env.RABBITMQ_URL)
     message_broker = MessageBroker(pika_url)
-    api = WeatherAPI(url, params, message_broker)
-    schedule.every(30).seconds.do(api.send_weather_data)
-    # schedule.every(1).minute.do(api.send_weather_data)
+    collector = Collector(weather_api, message_broker)
+    schedule.every(30).seconds.do(collector.collect_and_send)
 
     while True:
-        sleep(5)
+        sleep(1)
         schedule.run_pending()
+
 
 if (__name__ == "__main__"):
     main()

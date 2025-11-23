@@ -3,13 +3,10 @@ import requests_cache
 from openmeteo_requests.Client import WeatherApiResponse
 from retry_requests import retry
 
-from MessageBroker import MessageBroker
-
 class WeatherAPI:
-    def __init__(self, url, weather_params, messageBroker: MessageBroker) -> None:
+    def __init__(self, url, weather_params) -> None:
         self.url = url
         self.params = weather_params
-        self.messageBroker = messageBroker
 
     def call_weather_api(self) -> WeatherApiResponse:
         cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
@@ -29,11 +26,11 @@ class WeatherAPI:
 
     def is_valid_data(self, data: WeatherApiResponse):
         if (
-            not self.hourly or
-            not self.current or
-            not self.longitude or
-            not self.latitude or
-            not self.elevation
+            not data.Hourly() or
+            not data.Current() or
+            not data.Longitude() or
+            not data.Latitude() or
+            not data.Elevation()
         ):
             return False
         return True
@@ -51,7 +48,7 @@ class WeatherAPI:
                 "temperature": self.current.Variables(0).Value(),
                 "relative_humidity": self.current.Variables(1).Value(),
                 "weather_code": self.current.Variables(2).Value(),
-                "wind_speed_10m": self.current.Variables(3).Value()
+                "wind_speed": self.current.Variables(3).Value()
             },
             "hourly_weather": {
                 "time": {
@@ -61,18 +58,16 @@ class WeatherAPI:
                 "temperature": self.hourly.Variables(0).Value(),
                 "relative_humidity": self.hourly.Variables(1).Value(),
                 "weather_code": self.hourly.Variables(2).Value(),
-                "wind_speed_10m": self.hourly.Variables(3).Value()
+                "wind_speed": self.hourly.Variables(3).Value()
             }
         }
 
-    def send_weather_data(self):
+    def get_parsed_weather_data(self):
         response = self.call_weather_api()
-        self.set_data(response)
+
         if (not self.is_valid_data(response)):
             raise Exception("Invalid weather data")
 
-        weather_data_json = self.parse_weather_data()
-
-        self.messageBroker.send_data(weather_data_json)
-        print("Data sent")
+        self.set_data(response)
+        return self.parse_weather_data()
 
