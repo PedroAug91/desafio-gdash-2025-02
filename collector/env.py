@@ -6,6 +6,7 @@ required_env_vars = [
     # "RABBITMQ_PORT",
     # "RABBITMQ_HOST",
     "RABBITMQ_URL",
+    "RABBITMQ_QUEUE",
 ]
 
 def check_for_env_vars():
@@ -25,4 +26,4 @@ check_for_env_vars()
 # RABBITMQ_PORT = os.environ["RABBITMQ_PORT"]
 # RABBITMQ_HOST = os.environ["RABBITMQ_HOST"]
 RABBITMQ_URL = os.environ["RABBITMQ_URL"]
-
+RABBITMQ_QUEUE = os.environ["RABBITMQ_QUEUE"]

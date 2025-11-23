@@ -3,10 +3,13 @@ import requests_cache
 from openmeteo_requests.Client import WeatherApiResponse
 from retry_requests import retry
 
+from Logger import Logger
+
 class WeatherAPI:
-    def __init__(self, url, weather_params) -> None:
+    def __init__(self, url, weather_params, logger: Logger) -> None:
         self.url = url
         self.params = weather_params
+        self.logger = logger
 
     def call_weather_api(self) -> WeatherApiResponse:
         cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
@@ -24,7 +27,7 @@ class WeatherAPI:
         self.hourly = data.Hourly()
         self.current = data.Current()
 
-    def is_valid_data(self, data: WeatherApiResponse):
+    def validate_data(self, data: WeatherApiResponse):
         if (
             not data.Hourly() or
             not data.Current() or
@@ -32,8 +35,8 @@ class WeatherAPI:
             not data.Latitude() or
             not data.Elevation()
         ):
-            return False
-        return True
+            self.logger.set_log_level("ERROR").log("Could not parse weather data")
+            raise Exception("Invalid weather data")
 
     def parse_weather_data(self):
         return {
@@ -64,10 +67,8 @@ class WeatherAPI:
 
     def get_parsed_weather_data(self):
         response = self.call_weather_api()
-
-        if (not self.is_valid_data(response)):
-            raise Exception("Invalid weather data")
-
+        self.logger.set_log_level("INFO").log("Collected weather data")
+        self.validate_data(response)
         self.set_data(response)
         return self.parse_weather_data()
 
