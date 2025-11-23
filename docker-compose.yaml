@@ -9,6 +9,11 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongodb:
     image: mongo:latest
@@ -39,10 +44,13 @@ services:
       context: ./worker
       dockerfile: Dockerfile
     depends_on:
-      - rabbitmq
-      - api
+      rabbitmq:
+        condition: service_healthy
+      api:
+        condition: service_started
     environment:
       RABBITMQ_URL: ${RABBITMQ_URL}
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE}
       API_URL: ${API_URL}
 
   python-collector:
@@ -50,9 +58,11 @@ services:
       context: ./collector
       dockerfile: Dockerfile
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     environment:
       RABBITMQ_URL: ${RABBITMQ_URL}
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE}
       WEATHER_API_KEY: ${WEATHER_API_KEY}
 
   frontend:
