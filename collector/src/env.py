@@ -27,3 +27,11 @@ check_for_env_vars()
 # RABBITMQ_HOST = os.environ["RABBITMQ_HOST"]
 RABBITMQ_URL = os.environ["RABBITMQ_URL"]
 RABBITMQ_QUEUE = os.environ["RABBITMQ_QUEUE"]
+WEATHER_API_URL = "https://api.open-meteo.com/v1/forecast"
+WEATHER_API_PARAMS = {
+    "latitude": -5.795,
+    "longitude": -35.2094,
+    "hourly": ["temperature_2m", "relative_humidity_2m", "wind_speed_10m", "weather_code"],
+    "current": ["temperature_2m", "relative_humidity_2m", "weather_code", "wind_speed_10m"],
+}
+

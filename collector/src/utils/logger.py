@@ -15,7 +15,15 @@ class Logger:
         self.log_level = self.log_level_map[level]
         return self
 
+    def log_warning(self, message: str):
+        self.set_log_level("WARNING").log(message)
+
+    def log_error(self, message: str):
+        self.set_log_level("ERROR").log(message)
+        
+    def log_info(self, message: str):
+        self.set_log_level("INFO").log(message)
+
     def log(self, message: str):
         iso_8651_datetime = datetime.datetime.now().isoformat(sep=" ")
         print(f"{iso_8651_datetime} | [{self.resource}] | {self.log_level} - {message}")
-
