@@ -7,7 +7,7 @@ import { Model } from "mongoose";
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+    constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
 
     create(createUserDto: CreateUserDto) {
         const createdUser = new this.userModel(createUserDto);
@@ -15,11 +15,11 @@ export class UsersService {
     }
 
     findAll() {
-        return this.userModel.find().exec();
+        return this.userModel.find().select(["_id","name", "email"]).lean().exec();
     }
 
-    findOne(id: number) {
-        return `This action find a #${id} user`;
+    findOne(id: string): Promise<User|null> {
+        return this.userModel.findOne({ _id: id }).select(["_id", "name", "email", "role"]).lean().exec();
     }
 
     update(id: number, updateUserDto: UpdateUserDto) {
