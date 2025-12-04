@@ -22,7 +22,7 @@ export class UsersService {
     }
 
     findOne(email: string): Promise<User|null> {
-        return this.userModel.findOne({ email: email }).select(["_id", "name", "email", "role"]).lean().exec();
+        return this.userModel.findOne({ email: email }).select(["_id", "name", "email", "role", "password_hash"]).lean().exec();
     }
 
     update(id: number, updateUserDto: UpdateUserDto) {

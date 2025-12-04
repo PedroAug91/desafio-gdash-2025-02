@@ -38,6 +38,8 @@ services:
     environment:
       MONGODB_URI: ${MONGODB_URI}
       NODE_ENV: ${NODE_ENV}
+    volumes:
+      - ./backend/:/usr/src/api
 
   go-worker:
     build:
