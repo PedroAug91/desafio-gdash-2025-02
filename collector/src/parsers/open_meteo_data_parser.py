@@ -35,7 +35,7 @@ class OpenMeteoDataParser:
             return None
 
         parsed_data = {
-            "latitute": self.data.Latitude(),
+            "latitude": self.data.Latitude(),
             "longitude": self.data.Longitude(),
             "elevation": self.data.Elevation(),
             "current_weather": {
