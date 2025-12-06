@@ -39,17 +39,17 @@ export class HourlyWeather {
     @Prop({ type: TimeRangeSchema, required: true })
     time: TimeRange;
 
-    @Prop({ type: [Number], required: true })
-    temperature: number[];
+    @Prop({ type: Number, required: true })
+    temperature: number;
 
-    @Prop({ type: [Number], required: true })
-    relative_humidity: number[];
+    @Prop({ type: Number, required: true })
+    relative_humidity: number;
 
-    @Prop({ type: [Number], required: true })
-    weather_code: number[];
+    @Prop({ type: Number, required: true })
+    weather_code: number;
 
-    @Prop({ type: [Number], required: true })
-    wind_speed: number[];
+    @Prop({ type: Number, required: true })
+    wind_speed: number;
 }
 
 const HourlyWeatherSchema = SchemaFactory.createForClass(HourlyWeather);
