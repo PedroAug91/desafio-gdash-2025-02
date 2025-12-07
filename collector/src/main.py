@@ -47,7 +47,10 @@ def main():
     service = WeatherDataService(collector, publisher, Logger("Weather Service"))
     service.connect_to_broker()
 
-    schedule.every(30).seconds.do(service.publish_data)
+    # schedule.every(30).seconds.do(service.publish_data)
+    # schedule.every(1).minute.do(service.publish_data)
+    schedule.every(1).hour.do(service.publish_data)
+
 
     while True:
         sleep(1)
