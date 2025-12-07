@@ -14,6 +14,7 @@ export class UsersService {
         if (await this.findOne(createdUser.email)) {
             throw new ConflictException("Email already in use.");
         }
+
         return createdUser.save();
     }
 

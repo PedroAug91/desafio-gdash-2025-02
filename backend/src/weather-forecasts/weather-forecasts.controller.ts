@@ -7,10 +7,12 @@ import {
     Delete,
     HttpCode,
     HttpStatus,
+    UseGuards,
 } from "@nestjs/common";
 
 import { WeatherForecastsService } from "./weather-forecasts.service";
 import { CreateWeatherForecastDto } from "./dto/create-weather.dto";
+import { AuthGuard } from "src/auth/auth.guard";
 
 @Controller("weather")
 export class WeatherForecastsController {
@@ -24,11 +26,14 @@ export class WeatherForecastsController {
         return this.weatherForecastsService.create(createWeatherDto);
     }
 
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
     @Get("latest")
     findLatest() {
         return this.weatherForecastsService.findLatest();
     }
 
+    @UseGuards(AuthGuard)
     @Delete(":id")
     @HttpCode(HttpStatus.NO_CONTENT)
     remove(@Param("id") id: string) {

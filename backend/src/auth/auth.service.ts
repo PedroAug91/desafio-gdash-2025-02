@@ -11,6 +11,7 @@ export class AuthService {
     constructor(private usersService: UsersService, private jwtService: JwtService) {}
 
     async signin(signInDTO: SignInDTO) {
+        console.log(signInDTO);
         const user = await this.usersService.findOne(signInDTO.email);
 
         if (!user) {
