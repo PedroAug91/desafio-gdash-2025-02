@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from './auth/auth.module';
 import { WeatherForecastsModule } from "./weather-forecasts/weather-forecasts.module";
+import { DefaultUserCreatorService } from './default-user-creator/default-user-creator.service';
 
 @Module({
     imports: [
@@ -21,6 +22,6 @@ import { WeatherForecastsModule } from "./weather-forecasts/weather-forecasts.mo
         WeatherForecastsModule,
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, DefaultUserCreatorService],
 })
 export class AppModule {}
