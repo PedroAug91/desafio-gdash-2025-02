@@ -34,6 +34,13 @@ export class WeatherForecastsController {
     }
 
     @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
+    @Get("insights/:_id")
+    getInsights(@Param() params: any) {
+        return this.weatherForecastsService.getInsights(params._id);
+    }
+
+    @UseGuards(AuthGuard)
     @Delete(":id")
     @HttpCode(HttpStatus.NO_CONTENT)
     remove(@Param("id") id: string) {
