@@ -52,19 +52,12 @@ export const Dashboard = () => {
     };
 
     const handleDownload = (extension: 'json' | 'csv' | 'xlsx') => {
-        let contentType = '';
-        switch (extension) {
-            case 'csv':
-                contentType = 'text/csv';
-                break;
-            case 'xlsx':
-                contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                break;
-            case 'json':
-                contentType = 'application/json';
-                break;
-            default:
-                throw new Error('Unsupported extension');
+        if (
+            extension !== "csv" &&
+                extension !== "json" &&
+                extension !== "xlsx"
+        ) {
+            throw new Error('Unsupported extension');
         }
 
         const endpoint = `/weather/exports/${extension}`;
