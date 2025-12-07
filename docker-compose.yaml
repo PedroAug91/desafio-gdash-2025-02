@@ -76,6 +76,10 @@ services:
       - "${APP_PORT}:5173"
     depends_on:
       - api
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+    volumes:
+      - ./frontend/:/usr/src/app
 
 volumes:
   rabbitmq_data:
