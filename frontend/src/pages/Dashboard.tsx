@@ -3,6 +3,7 @@ import { useLoaderData } from "react-router-dom";
 import type { WeatherData } from "@/types";
 import { getUser, removeToken } from "@/lib/auth";
 import { api } from "@/lib/api";
+import { handleAuthenticatedDownload } from '@/lib/downloader';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,13 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Thermometer, Wind, Droplets, LogOut, Sparkles, Loader2 } from "lucide-react";
+import { Thermometer, Wind, Droplets, LogOut, Sparkles, Loader2, Download, FileText, FileSpreadsheet, FileJson } from "lucide-react";
+import {
+    DropdownMenu, 
+    DropdownMenuContent, 
+    DropdownMenuItem, 
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
 
 export const Dashboard = () => {
     const weather = useLoaderData() as WeatherData;
@@ -44,6 +51,28 @@ export const Dashboard = () => {
         }
     };
 
+    const handleDownload = (extension: 'json' | 'csv' | 'xlsx') => {
+        let contentType = '';
+        switch (extension) {
+            case 'csv':
+                contentType = 'text/csv';
+                break;
+            case 'xlsx':
+                contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                break;
+            case 'json':
+                contentType = 'application/json';
+                break;
+            default:
+                throw new Error('Unsupported extension');
+        }
+
+        const endpoint = `/weather/exports/${extension}`;
+        const filename = `weather_report.${extension}`;
+
+        handleAuthenticatedDownload(endpoint, filename);
+    };
+
     return (
         <div className="min-h-screen bg-slate-100 p-8">
             <div className="max-w-4xl mx-auto space-y-8">
@@ -53,6 +82,26 @@ export const Dashboard = () => {
                         <p className="text-slate-500">Welcome back, {user?.name}</p>
                     </div>
                     <div className="flex gap-2">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button 
+                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                    <Download className="mr-2 h-4 w-4" /> Export Data
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleDownload('csv')}>
+                                    <FileText className="mr-2 h-4 w-4" /> Download CSV
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDownload('xlsx')}>
+                                    <FileSpreadsheet className="mr-2 h-4 w-4" /> Download XLSX
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDownload('json')}>
+                                    <FileJson className="mr-2 h-4 w-4" /> Download JSON
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                         <Button 
                             onClick={handleGetInsights}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white"
