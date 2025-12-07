@@ -4,9 +4,9 @@ import { AppService } from "./app.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UsersModule } from "./users/users.module";
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from "./auth/auth.module";
 import { WeatherForecastsModule } from "./weather-forecasts/weather-forecasts.module";
-import { DefaultUserCreatorService } from './default-user-creator/default-user-creator.service';
+import { DefaultUserCreatorService } from "./default-user-creator/default-user-creator.service";
 
 @Module({
     imports: [

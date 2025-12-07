@@ -7,7 +7,9 @@ import { Model } from "mongoose";
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
+    constructor(
+        @InjectModel(User.name) private readonly userModel: Model<User>,
+    ) {}
 
     async create(createUserDto: CreateUserDto) {
         const createdUser = new this.userModel(createUserDto);
@@ -19,11 +21,19 @@ export class UsersService {
     }
 
     findAll() {
-        return this.userModel.find().select(["_id","name", "email"]).lean().exec();
+        return this.userModel
+            .find()
+            .select(["_id", "name", "email"])
+            .lean()
+            .exec();
     }
 
-    findOne(email: string): Promise<User|null> {
-        return this.userModel.findOne({ email: email }).select(["_id", "name", "email", "role", "password_hash"]).lean().exec();
+    findOne(email: string): Promise<User | null> {
+        return this.userModel
+            .findOne({ email: email })
+            .select(["_id", "name", "email", "role", "password_hash"])
+            .lean()
+            .exec();
     }
 
     update(id: number, updateUserDto: UpdateUserDto) {

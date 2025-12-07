@@ -20,23 +20,20 @@ export class WeatherForecastsService {
     async getInsights(id: string) {
         const weather = await this.findOne(id);
         const aiInsights = await this.generateWeatherInsights(weather);
-        return {
-            ai_Insights: aiInsights
-        };
+        return { ai_Insights: aiInsights };
     }
 
     async findOne(id: string) {
         const weather = await this.weatherModel
             .findById(id)
             .select("-__v")
-            .exec()
+            .exec();
 
         if (!weather) {
             throw new NotFoundException("No weather data found");
         }
 
         return weather;
-
     }
 
     async findLatest() {
@@ -51,6 +48,15 @@ export class WeatherForecastsService {
         }
 
         return weather;
+    }
+
+    async findAll(limit: number = 300): Promise<Weather[]> {
+        return await this.weatherModel
+            .find()
+            .select("-__v -_id")
+            .sort({ "current_weather.time.start": -1 })
+            .limit(limit)
+            .exec();
     }
 
     async remove(id: string): Promise<Weather> {
@@ -77,7 +83,6 @@ export class WeatherForecastsService {
         const filename = `weather-export-${Date.now()}.csv`;
 
         const flatData = weatherData.map((weather: any) => ({
-            id: weather._id,
             latitude: weather.latitude,
             longitude: weather.longitude,
             elevation: weather.elevation,
@@ -109,22 +114,22 @@ export class WeatherForecastsService {
 
         const headers = Object.keys(flatData[0] || {}) as Array<
             keyof FlatWeatherForecastData
-            >;
+        >;
         const csvRows = [
             headers.join(","),
             ...flatData.map((row) =>
                 headers
-                .map((header) => {
-                    const value = row[header];
-                    if (
-                        typeof value === "string"
+                    .map((header) => {
+                        const value = row[header];
+                        if (
+                            typeof value === "string"
                             && (value.includes(",") || value.includes('"'))
-                    ) {
-                        return `"${value.replace(/"/g, '""')}"`;
-                    }
-                    return value;
-                })
-                .join(","),
+                        ) {
+                            return `"${value.replace(/"/g, '""')}"`;
+                        }
+                        return value;
+                    })
+                    .join(","),
             ),
         ];
 
@@ -144,7 +149,6 @@ export class WeatherForecastsService {
 
         const summarySheet = workbook.addWorksheet("Weather Summary");
         summarySheet.columns = [
-            { header: "ID", key: "id", width: 25 },
             { header: "Latitude", key: "latitude", width: 15 },
             { header: "Longitude", key: "longitude", width: 15 },
             { header: "Elevation", key: "elevation", width: 12 },
@@ -164,7 +168,6 @@ export class WeatherForecastsService {
 
         weatherData.forEach((weather: any) => {
             summarySheet.addRow({
-                id: weather._id.toString(),
                 latitude: weather.latitude,
                 longitude: weather.longitude,
                 elevation: weather.elevation,
@@ -210,7 +213,7 @@ export class WeatherForecastsService {
                     index: i,
                     temp: firstWeather.hourly_weather.temperature?.[i],
                     humidity:
-                    firstWeather.hourly_weather.relative_humidity?.[i],
+                        firstWeather.hourly_weather.relative_humidity?.[i],
                     code: firstWeather.hourly_weather.weather_code?.[i],
                     wind: firstWeather.hourly_weather.wind_speed?.[i],
                 });
@@ -239,7 +242,9 @@ export class WeatherForecastsService {
 
     private async generateWeatherInsights(weather: any): Promise<string> {
         try {
-            const weatherCode = this.getWeatherDescription(weather.current_weather.weather_code);
+            const weatherCode = this.getWeatherDescription(
+                weather.current_weather.weather_code,
+            );
 
             const prompt = `Based on the following weather data, provide brief, practical insights for someone in this location:
 
@@ -256,62 +261,60 @@ Provide 2-3 concise, actionable insights about:
 
 Keep the response under 150 words and make it friendly and conversational.`;
 
-            const response = await fetch("https://api.openai.com/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+            const response = await fetch(
+                "https://api.openai.com/v1/chat/completions",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4o-mini",
+                        messages: [{ role: "user", content: prompt }],
+                    }),
                 },
-                body: JSON.stringify({
-                    model: "gpt-4o-mini",
-                    messages: [
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ]
-                }) 
-            })
+            );
 
             if (!response.ok) {
                 throw new Error(`API request failed: ${response.statusText}`);
             }
 
             const data = await response.json();
-            return data.choices[0].message.content
+            return data.choices[0].message.content;
         } catch (error) {
-            console.error('Error generating AI insights:', error);
-            return 'AI insights temporarily unavailable.';
+            console.error("Error generating AI insights:", error);
+            return "AI insights temporarily unavailable.";
         }
     }
 
     private getWeatherDescription(code: number): string {
         const weatherCodes: { [key: number]: string } = {
-            0: 'Clear sky',
-            1: 'Mainly clear',
-            2: 'Partly cloudy',
-            3: 'Overcast',
-            45: 'Foggy',
-            48: 'Depositing rime fog',
-            51: 'Light drizzle',
-            53: 'Moderate drizzle',
-            55: 'Dense drizzle',
-            61: 'Slight rain',
-            63: 'Moderate rain',
-            65: 'Heavy rain',
-            71: 'Slight snow',
-            73: 'Moderate snow',
-            75: 'Heavy snow',
-            77: 'Snow grains',
-            80: 'Slight rain showers',
-            81: 'Moderate rain showers',
-            82: 'Violent rain showers',
-            85: 'Slight snow showers',
-            86: 'Heavy snow showers',
-            95: 'Thunderstorm',
-            96: 'Thunderstorm with slight hail',
-            99: 'Thunderstorm with heavy hail',
+            0: "Clear sky",
+            1: "Mainly clear",
+            2: "Partly cloudy",
+            3: "Overcast",
+            45: "Foggy",
+            48: "Depositing rime fog",
+            51: "Light drizzle",
+            53: "Moderate drizzle",
+            55: "Dense drizzle",
+            61: "Slight rain",
+            63: "Moderate rain",
+            65: "Heavy rain",
+            71: "Slight snow",
+            73: "Moderate snow",
+            75: "Heavy snow",
+            77: "Snow grains",
+            80: "Slight rain showers",
+            81: "Moderate rain showers",
+            82: "Violent rain showers",
+            85: "Slight snow showers",
+            86: "Heavy snow showers",
+            95: "Thunderstorm",
+            96: "Thunderstorm with slight hail",
+            99: "Thunderstorm with heavy hail",
         };
-        return weatherCodes[code] || 'Unknown';
+        return weatherCodes[code] || "Unknown";
     }
 }

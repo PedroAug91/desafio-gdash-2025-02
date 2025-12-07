@@ -1,14 +1,21 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import {
+    Injectable,
+    NotFoundException,
+    UnauthorizedException,
+} from "@nestjs/common";
+import { UsersService } from "src/users/users.service";
 import * as bcrypt from "bcrypt";
-import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/users/schemas/user.schema';
-import { SignInDTO } from './dto/signIn.dto';
-import { SignUpDTO } from './dto/signUp.dto';
+import { JwtService } from "@nestjs/jwt";
+import { User } from "src/users/schemas/user.schema";
+import { SignInDTO } from "./dto/signIn.dto";
+import { SignUpDTO } from "./dto/signUp.dto";
 
 @Injectable()
 export class AuthService {
-    constructor(private usersService: UsersService, private jwtService: JwtService) {}
+    constructor(
+        private usersService: UsersService,
+        private jwtService: JwtService,
+    ) {}
 
     async signin(signInDTO: SignInDTO) {
         const user = await this.usersService.findOne(signInDTO.email);
@@ -17,7 +24,10 @@ export class AuthService {
             throw new NotFoundException("User not found");
         }
 
-        const isMatch = bcrypt.compareSync(signInDTO.password, user.password_hash)
+        const isMatch = bcrypt.compareSync(
+            signInDTO.password,
+            user.password_hash,
+        );
 
         if (!isMatch) {
             throw new UnauthorizedException("Invalid credentials.");
@@ -36,9 +46,9 @@ export class AuthService {
             name: signUpDTO.name,
             email: signUpDTO.email,
             password_hash,
-            role: "USER"
-        }
+            role: "USER",
+        };
 
-        return await this.usersService.create(valid_user)
+        return await this.usersService.create(valid_user);
     }
 }

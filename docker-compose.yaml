@@ -43,6 +43,7 @@ services:
       API_DEFAULT_EMAIL: ${API_DEFAULT_EMAIL}
       API_DEFAULT_PASSWORD: ${API_DEFAULT_PASSWORD}
       API_DEFAULT_ROLE: ${API_DEFAULT_ROLE}
+      JWT_SECRET: ${JWT_SECRET}
     volumes:
       - ./backend/:/usr/src/api
 

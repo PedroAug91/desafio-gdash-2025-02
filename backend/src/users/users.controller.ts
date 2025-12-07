@@ -43,11 +43,7 @@ export class UsersController {
             throw new NotFoundException("Could not find this specific user.");
         }
 
-        return {
-            success: true,
-            message: "User retrieved.",
-            data: user
-        }
+        return { success: true, message: "User retrieved.", data: user };
     }
 
     @UseGuards(AuthGuard)

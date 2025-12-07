@@ -8,14 +8,11 @@ import {
     HttpCode,
     HttpStatus,
     UseGuards,
-    BadRequestException,
-    Res,
 } from "@nestjs/common";
 
 import { WeatherForecastsService } from "./weather-forecasts.service";
 import { CreateWeatherForecastDto } from "./dto/create-weather.dto";
 import { AuthGuard } from "src/auth/auth.guard";
-import type { Response } from "express";
 
 @Controller("weather")
 export class WeatherForecastsController {
@@ -51,24 +48,7 @@ export class WeatherForecastsController {
     }
 
     @UseGuards(AuthGuard)
-    @Get("exports/:extension")
-    async getFile(
-        @Param("extension") extension: "json" | "xlsx" | "csv", 
-        @Res() res: Response,
-    ) {
-        const weather = await this.weatherForecastsService.findAll();
-        switch (extension) {
-            case "json":
-                this.weatherForecastsService.exportToJson(weather, res)
-                break;
-            case "xlsx":
-                this.weatherForecastsService.exportToXlsx(weather, res)
-                break;
-            case "csv":
-                this.weatherForecastsService.exportToCsv(weather, res)
-                break;
-            default:
-                throw new BadRequestException(`Invalid ${extension} extension`)
-        }
+    @Get("exports/:id/:extension")
+    getFile(@Param("id") id: string, @Param("extension") extension: "json" | "xlsx" | "csv") {
     }
 }
