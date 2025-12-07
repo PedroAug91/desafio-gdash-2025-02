@@ -1,6 +1,6 @@
 import { createBrowserRouter, redirect } from "react-router";
 import { api } from "@/lib/api";
-import { isAuthenticated, setToken } from "@/lib/auth";
+import { isAuthenticated, setToken, removeToken, getToken } from "@/lib/auth";
 import type { AuthResponse } from "@/types";
 
 import { Dashboard } from "@/pages/Dashboard";
@@ -16,9 +16,17 @@ export const router = createBrowserRouter([
                 return redirect("/login");
             }
             try {
-                const response = await api.get("/weather/latest");
+                const response = await api.get("/weather/latest", {
+                    headers: {
+                        "Authorization": `Bearer ${getToken()}`,
+                    }
+                });
+                if (response.status > 400) {
+                    throw new Error("Unauthorized")
+                }
                 return response.data;
             } catch (error) {
+                removeToken();
                 return redirect("/login");
             }
         },
