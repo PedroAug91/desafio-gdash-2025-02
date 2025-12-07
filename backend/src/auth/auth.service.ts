@@ -35,8 +35,8 @@ export class AuthService {
         const valid_user: User = {
             name: signUpDTO.name,
             email: signUpDTO.email,
-            role: signUpDTO.role,
             password_hash,
+            role: "USER"
         }
 
         return await this.usersService.create(valid_user)

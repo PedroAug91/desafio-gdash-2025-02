@@ -24,7 +24,7 @@ export class User {
     @Prop({ required: true })
     password_hash: string;
 
-    @Prop({ required: true, enum: ["ADMIN", "USER"] })
+    @Prop({ enum: ["ADMIN", "USER"], default: "USER" })
     role: string;
 }
 
